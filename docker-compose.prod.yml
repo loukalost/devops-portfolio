@@ -1,0 +1,41 @@
+services:
+  portfolio:
+    image: ghcr.io/loukalost/devops-portfolio:latest
+    container_name: portfolio-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - portfolio-network
+      - public_network
+  db:
+    image: postgres:17-alpine
+    container_name: portfolio-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: portfolio
+      POSTGRES_DB: portfolio
+    volumes:
+      - portfolio_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio -d portfolio"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - portfolio-network
+
+networks:
+  default:
+    name: portfolio-network
+    driver: bridge
+  public_network:
+    name: public_network
+    driver: bridge
+
+volumes:
+  portfolio_pgdata:

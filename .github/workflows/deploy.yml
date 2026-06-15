@@ -45,3 +45,24 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ env.registry }}/${{ env.IMAGE_REPOSITORY }}:latest
+
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    permissions:
+      contents: read
+      packages: read
+    
+    steps:
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/projects/portfolio
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker system prune -a
