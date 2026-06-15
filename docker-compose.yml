@@ -7,6 +7,19 @@
 #   postgresql://portfolio:portfolio@localhost:5432/portfolio?schema=public
 
 services:
+  portfolio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "80:3000"
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: postgres:17-alpine
     container_name: portfolio-db
@@ -24,6 +37,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+networks:
+  default:
+    name: portfolio-network
+    driver: bridge
 
 volumes:
   portfolio_pgdata:

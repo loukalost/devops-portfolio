@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     // Niveaux de qualité autorisés (requis par next/image en Next.js 16).
     qualities: [75, 100],
