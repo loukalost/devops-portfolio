@@ -14,7 +14,6 @@ jobs:
   security:
     uses: ./.github/workflows/security.yml
     secrets: inherit
-
   quality:
     uses: ./.github/workflows/quality.yml
     secrets: inherit
