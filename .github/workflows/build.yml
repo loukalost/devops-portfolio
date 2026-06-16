@@ -2,6 +2,10 @@ name: build-and-push
 on:
   workflow_call:
 
+env:
+  registry: ghcr.io
+  image_name: ${{ github.repository }}
+
 jobs:
   build-and-push:
     name: Build and Push Docker Image 
