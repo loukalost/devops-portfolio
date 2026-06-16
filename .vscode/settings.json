@@ -12,5 +12,9 @@
     "statusBar.noFolderBackground": "#580D3B",
     "statusBar.noFolderForeground": "#FFFCFD"
   },
-  "prisma.pinToPrisma6": false
+  "prisma.pinToPrisma6": false,
+  "sonarlint.connectedMode.project": {
+    "connectionId": "sonar-louka-lemonnier-mds",
+    "projectKey": "loukalost_devops-portfolio_d8444f4d-19ab-46ab-9129-ff3b77ea6301"
+  }
 }

@@ -1,68 +1,11 @@
-name: Build and Deploy Portfolio
-
+name: deploy
 on:
-  push:
-    branches:
-      - master
-  workflow_dispatch:
-
-env:
-  registry: ghcr.io
-  image_name: ${{ github.repository }}
+  workflow_call:
 
 jobs:
-  security:
-    name: Security Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
-
-      - name: Run Security Checks with Snyk
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-  build-and-push:
-    name: Build and Push Docker Image 
-    runs-on: ubuntu-latest
-    needs: security
-    # environment: production
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.registry }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: PrepareReg Names
-        run: |
-          echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
-          echo IMAGE_TAG=$(echo ${{ github.ref }} | tr '[:upper:]' '[:lower:]' | awk '{split($0,a,"/"); print a[3]}') >> $GITHUB_ENV
-
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ env.registry }}/${{ env.IMAGE_REPOSITORY }}:latest
-
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
-    needs: build-and-push
     permissions:
       contents: read
       packages: read
@@ -79,22 +22,3 @@ jobs:
             docker compose pull
             docker compose up -d --remove-orphans
             docker system prune -a
-  
-  analyse:
-    name: Analyse Code with SonarQube
-    runs-on: windows-latest
-    
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # - uses: SonarSource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b # v1.2.0
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

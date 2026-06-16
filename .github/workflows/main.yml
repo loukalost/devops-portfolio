@@ -1,0 +1,26 @@
+name: Build and Deploy Portfolio
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  registry: ghcr.io
+  image_name: ${{ github.repository }}
+
+jobs:
+  security:
+    uses: ./.github/workflows/security.yml
+
+  quality:
+    uses: ./.github/workflows/quality.yml
+
+  build-and-push:
+    uses: ./.github/workflows/build.yml
+    needs: [security, quality]
+
+  deploy:
+    uses: ./.github/workflows/deploy.yml
+    needs: build-and-push
