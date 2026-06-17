@@ -16,5 +16,6 @@
   "sonarlint.connectedMode.project": {
     "connectionId": "MDS M1 DevOps Sonar",
     "projectKey": "RiusmaX_mds-m1-devops-portfolio_a1236eec-cd51-46c3-8d83-e1ef62eb0646"
-  }
+  },
+  "WillLuke.nextjs.hasPrompted": true
 }

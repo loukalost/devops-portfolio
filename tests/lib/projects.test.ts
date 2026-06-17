@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
 // Mock Prisma: no real database access is needed to test the business
 // logic (ordering, fallback to non-featured projects, etc.).
@@ -28,8 +28,17 @@ function makeProject(overrides: Record<string, unknown> = {}) {
   } as never;
 }
 
+// The lib functions log caught errors via console.error. We silence (and
+// assert on) it so the expected error-path output doesn't pollute the run.
+let errorSpy: ReturnType<typeof vi.spyOn>;
+
 beforeEach(() => {
   vi.clearAllMocks();
+  errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  errorSpy.mockRestore();
 });
 
 describe("getProjects", () => {
@@ -42,6 +51,7 @@ describe("getProjects", () => {
   it("returns an empty array when Prisma throws", async () => {
     findMany.mockRejectedValue(new Error("DB unavailable"));
     await expect(getProjects()).resolves.toEqual([]);
+    expect(errorSpy).toHaveBeenCalled();
   });
 });
 
@@ -80,5 +90,6 @@ describe("getProjectBySlug", () => {
   it("returns null when Prisma throws", async () => {
     findFirst.mockRejectedValue(new Error("DB unavailable"));
     await expect(getProjectBySlug("project")).resolves.toBeNull();
+    expect(errorSpy).toHaveBeenCalled();
   });
 });
