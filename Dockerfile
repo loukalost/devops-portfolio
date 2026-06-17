@@ -83,6 +83,14 @@ FROM node:${NODE_VERSION} AS runner
 # Set working directory
 WORKDIR /app
 
+# Correctif failles OS (libgnutls30, libcap2…) + suppression de npm/npx
+# inutiles au runtime (élimine les 19 CVE node-pkg)
+RUN apt-get update \
+  && apt-get upgrade -y \
+  && rm -rf /usr/local/lib/node_modules/npm \
+            /usr/local/bin/npm /usr/local/bin/npx \
+  && rm -rf /var/lib/apt/lists/*
+
 # Set production environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
